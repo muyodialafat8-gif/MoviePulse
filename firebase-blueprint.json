@@ -1,0 +1,145 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with level, streak, and sub information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "level": { "type": "string", "enum": ["Bronze Viewer", "Silver Viewer", "Gold Viewer", "Elite Cinephile"] },
+        "pulseCoins": { "type": "number" },
+        "streak": { "type": "number" },
+        "lastActiveDate": { "type": "string" },
+        "subscriptionActive": { "type": "boolean" },
+        "subscriptionPlanId": { "type": "string" },
+        "subscriptionExpiresAt": { "type": "string" },
+        "isAdultUnlocked": { "type": "boolean" },
+        "adultPin": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Movie": {
+      "title": "Movie",
+      "description": "A streamable movie item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "synopsis": { "type": "string" },
+        "backdropUrl": { "type": "string" },
+        "posterUrl": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "duration": { "type": "string" },
+        "rating": { "type": "string" },
+        "year": { "type": "number" },
+        "vjs": { "type": "array" },
+        "views": { "type": "number" },
+        "isPremium": { "type": "boolean" },
+        "category": { "type": "string" },
+        "tags": { "type": "array" }
+      },
+      "required": ["id", "title", "videoUrl"]
+    },
+    "Series": {
+      "title": "Series",
+      "description": "A series or seasonal collection",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "posterUrl": { "type": "string" },
+        "year": { "type": "number" },
+        "views": { "type": "number" },
+        "episodesCount": { "type": "number" }
+      },
+      "required": ["id", "title"]
+    },
+    "Episode": {
+      "title": "Episode",
+      "description": "An episode of a series",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "seriesId": { "type": "string" },
+        "title": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "duration": { "type": "string" },
+        "episodeNumber": { "type": "number" },
+        "seasonNumber": { "type": "number" }
+      },
+      "required": ["id", "seriesId", "videoUrl"]
+    },
+    "Short": {
+      "title": "Short",
+      "description": "Vertical short loop clip with movie link",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "movieId": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "hashtags": { "type": "array" },
+        "vjName": { "type": "string" },
+        "views": { "type": "number" },
+        "musicLabel": { "type": "string" }
+      },
+      "required": ["id", "movieId", "videoUrl"]
+    },
+    "Ad": {
+      "title": "Ad",
+      "description": "An admin-defined dynamic advertisement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "redirectUrl": { "type": "string" },
+        "sponsorName": { "type": "string" },
+        "type": { "type": "string", "enum": ["banner", "video", "interstitial", "card"] },
+        "clicks": { "type": "number" }
+      },
+      "required": ["id", "imageUrl"]
+    },
+    "DailyReward": {
+      "title": "DailyReward",
+      "description": "Details of user's reward wheel status",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "lastSpun": { "type": "string" }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Global user accounts configuration"
+    },
+    "/movies/{movieId}": {
+      "schema": "Movie",
+      "description": "Main film directory"
+    },
+    "/series/{seriesId}": {
+      "schema": "Series",
+      "description": "TV Series library"
+    },
+    "/series/{seriesId}/episodes/{episodeId}": {
+      "schema": "Episode",
+      "description": "Individual series episodes"
+    },
+    "/shorts/{shortId}": {
+      "schema": "Short",
+      "description": "Reels videos collection"
+    },
+    "/ads/{adId}": {
+      "schema": "Ad",
+      "description": "Sponsor campaigns"
+    }
+  }
+}

@@ -1,0 +1,190 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      // In a real database, admins would be looked up.
+      // We will allow users with specific emails to act as admin, or look up in /users
+      return isSignedIn() && (
+        request.auth.token.email == "www.moviepulse.com@gmail.com" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Movies collection rules
+    match /movies/{movieId} {
+      allow read: if true; // Movies are visible to all (UI handles premium gating)
+      allow write: if isAdmin();
+    }
+
+    // Series collection rules
+    match /series/{seriesId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Episodes collection rules
+    match /series/{seriesId}/episodes/{episodeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Shorts collection rules
+    match /shorts/{shortId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Battles collection rules
+    match /battles/{battleId} {
+      allow read: if true;
+      allow create, update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // Watch history, favorites, watchlists, downloads, playlists
+    match /watchHistory/{id} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /favorites/{id} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /watchlists/{id} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /downloads/{id} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /playlists/{id} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Reactions subcollections
+    match /reactions/{reactionId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Notifications
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.userId == "global");
+      allow write: if isAdmin();
+    }
+
+    // Ads and Promotions
+    match /ads/{adId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /promotions/{promoId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Subscriptions Plans
+    match /subscriptions/{subId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /hashtags/{tagId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Live Channels
+    match /live_channels/{channelId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Daily rewards
+    match /daily_rewards/{rewardId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // User levels
+    match /user_levels/{levelId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin Logs and Scheduled Content
+    match /admin_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /scheduled_content/{id} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Private Adult Zone
+    match /adult_movies/{movieId} {
+      allow read: if isSignedIn() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdultUnlocked == true
+      );
+      allow write: if isAdmin();
+    }
+
+    match /adult_categories/{catId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /adult_subscriptions/{subId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

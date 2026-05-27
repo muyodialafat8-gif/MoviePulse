@@ -1,0 +1,8 @@
+{
+  "name": "MoviePulse",
+  "description": "Premium cinematic streaming platform with vertical engagement, Luganda translated VJ movies, daily rewards, and smart monetization optimized for Ugandan users.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

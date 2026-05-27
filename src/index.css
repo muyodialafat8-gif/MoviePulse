@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-sans: "Poppins", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+body {
+  background-color: #0a0a0a;
+  color: #f3f4f6;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Glassmorphism custom components */
+.glass-panel {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-hover {
+  transition: all 0.3s ease;
+}
+.glow-hover:hover {
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+  border-color: #ff0a16;
+}
+
+/* Custom scrollbar for mobile styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #e50914;
+  border-radius: 9px;
+}
+
+/* TikTok Vertical Shorts style transitions */
+.shorts-container {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+}
+.short-slide {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
